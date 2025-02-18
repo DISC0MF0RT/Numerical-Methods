@@ -4,21 +4,25 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <stdexcept>
 
 class Matrix {
+private:
+    int rows, cols;
+    std::vector<std::vector<double>> data;
+
 public:
-    Matrix(int r, int c) {}
+    Matrix(int r, int c);
 
-    void fill(){}
+    void fill();
 
-    void printMatrix(){}
+    void printMatrix();
 
-    void set(double element, int r, int c){}
+    void set(double element, int r, int c);
 
-    void printElement(int r, int c){}
+    void printElement(int r, int c);
 
-    std::vector<double> gaussJordamSolve(std::vector<double> b) {}
+    std::vector<double> gaussJordanSolve(std::vector<double> b);
 };
-
 
 #endif
