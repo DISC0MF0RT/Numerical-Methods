@@ -10,7 +10,7 @@ class Matrix {
 private:
     int rows, cols;
     std::vector<std::vector<double>> data;
-
+    double determinantRecursive(const std::vector<std::vector<double>>& mat) const;
 public:
     Matrix(int r, int c);
 
