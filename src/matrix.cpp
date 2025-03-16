@@ -47,14 +47,34 @@ bool Matrix::isTriDiagonal(){
     return true;
 }
 
-double Matrix::determinant() const{
-    if (rows != cols){
-        throw std::invalid_argument("Matrix must be square");
+double Matrix::determinant() const {    
+    if (rows != cols) {
+        throw std::invalid_argument("Determinant is only defined for square matrices");
+    }
+    return determinantRecursive(data);
+}
+
+double Matrix::determinantRecursive(const std::vector<std::vector<double>>& mat) const {
+    int n = mat.size();
+    if (n == 1) {
+        return mat[0][0];
+    }
+    if (n == 2) {
+        return mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
     }
 
-    double det = 1;
-    for (int i = 0; i < rows; i++){
-        det *= data[i][i];
+    double det = 0.0;
+    for (int i = 0; i < n; ++i) {
+        std::vector<std::vector<double>> subMatrix(n - 1, std::vector<double>(n - 1));
+        for (int row = 1; row < n; ++row) {
+            int colIdx = 0;
+            for (int col = 0; col < n; ++col) {
+                if (col == i) continue;
+                subMatrix[row - 1][colIdx] = mat[row][col];
+                ++colIdx;
+            }
+        }
+        det += (i % 2 == 0 ? 1 : -1) * mat[0][i] * determinantRecursive(subMatrix);
     }
     return det;
 }
@@ -117,7 +137,7 @@ std::vector<double> Matrix::gaussJordanSolve(std::vector<double> b) {
     if (b.size() != rows) {
         throw std::invalid_argument("Vector b size must match the number of rows in the matrix");
     }
-    if (determinant() < 1e-12){
+    if (std::abs(determinant()) < 1e-12){
          throw std::runtime_error("Matrix is singular or system has no unique solution");
     }
 
@@ -173,7 +193,7 @@ std::vector<double> Matrix::progon(std::vector<double> b){
     if (!isTriDiagonal()){
         throw std::invalid_argument("Not tridiagonal");
     }
-    if(determinant() < 1e-12){
+    if(std::abs(determinant()) < 1e-12){
         throw std::runtime_error("Matrix is singular or system has no unique solution");
 
     }
