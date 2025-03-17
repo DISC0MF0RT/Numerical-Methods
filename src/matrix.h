@@ -5,7 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <stdexcept>
-
+#include <algorithm>
 class Matrix {
 private:
     int rows, cols;
@@ -33,6 +33,10 @@ public:
     std::vector<double> progon(std::vector<double> b);
 
     bool check(std::vector<double> x, std::vector<double> b);
+    bool check(std::vector<double> x, std::vector<double> b, double EPS);
+
+    std::vector<double> methodSimpleIteration(const std::vector<double> &b, double EPS, int maxIteration);
+
 };
 
 #endif

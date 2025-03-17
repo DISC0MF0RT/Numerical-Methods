@@ -3,7 +3,7 @@
 Matrix::Matrix(int r, int c) : rows(r), cols(c), data(r, std::vector<double>(c, 0.0)) {}
 
 void Matrix::fill() {
-    std::cout << "Enter matrix elements:\n";
+
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             std::cout << "i = " << i << " j = " << j << ": ";
@@ -237,4 +237,78 @@ bool Matrix::check(std::vector<double> x, std::vector<double> b){
     }
     
     return true;
+}
+
+bool Matrix::check(std::vector<double> x, std::vector<double> b, double EPS){
+     std::vector<double> calculated_b(rows, 0.0);
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            calculated_b[i] += data[i][j] * x[j];
+        }
+    }
+
+    for (int i = 0; i < rows; ++i) {
+        if (std::abs(calculated_b[i] - b[i]) > EPS) {
+            return false;
+        }
+    }
+    
+    return true;   
+}
+
+std::vector<double> Matrix::methodSimpleIteration(const std::vector<double> &b, double EPS, int maxIterations){
+    if (cols != rows){
+        throw std::invalid_argument("Matrix must be square to find inverse");
+    }
+    int n = rows;
+    double maxAlpha;
+
+    std::vector<double> x(n, 0);
+    std::vector<double> oldX(n, 0);
+    std::vector<double> E(n, 0);
+    std::vector<double> alphaNorm(n, 0);
+
+    for (int i = 0; i < n; i++){
+        double sum = 0;
+        for (int j = 0; j < n; j++){
+            if (i != j) {
+                sum += fabs(data[i][j] / data[i][i]);
+            }
+        }
+        alphaNorm[i] = sum;
+    }
+
+    maxAlpha = std::abs(*max_element(alphaNorm.begin(), alphaNorm.end()));
+
+    if (maxAlpha > 1){
+        std::cout << "maxAlpha: " << maxAlpha << std::endl;
+        throw std::invalid_argument("Max alpha can't be > 1");
+    }
+
+    double eps_star = (maxAlpha / (1 - maxAlpha)) * EPS;
+
+    for(int iter = 0; iter < maxIterations; iter++){
+        for (int i = 0; i < n; i++){
+            double sum = 0;
+            for (int j = 0; j < n; j++){
+                if (i != j) {
+                    sum += data[i][j] * oldX[j];
+                }
+            }
+            x[i] = (b[i] - sum) / data[i][i];
+        }
+
+        double maxE = 0;
+        for (int i = 0; i < n; i++){
+            E[i] = fabs(x[i] - oldX[i]);
+            maxE = std::max(maxE, E[i]);
+        }
+
+        if (maxE < eps_star && maxE < EPS){
+            break;
+        }
+        oldX = x;
+    }
+    return x;
 }
