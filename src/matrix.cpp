@@ -195,7 +195,6 @@ std::vector<double> Matrix::progon(std::vector<double> b){
     }
     if(std::abs(determinant()) < 1e-12){
         throw std::runtime_error("Matrix is singular or system has no unique solution");
-
     }
 
     int n = rows;
@@ -261,6 +260,11 @@ std::vector<double> Matrix::methodSimpleIteration(const std::vector<double> &b, 
     if (cols != rows){
         throw std::invalid_argument("Matrix must be square to find inverse");
     }
+    if(std::abs(determinant()) < 1e-12){
+        throw std::runtime_error("Matrix is singular or system has no unique solution");
+    }
+
+
     int n = rows;
     double maxAlpha;
 
@@ -309,6 +313,67 @@ std::vector<double> Matrix::methodSimpleIteration(const std::vector<double> &b, 
             break;
         }
         oldX = x;
+    }
+    return x;
+}
+
+std::vector<double> Matrix::methodZeidelua(const std::vector<double> &b, double EPS, int maxIterations){
+    if (cols != rows){
+        throw std::invalid_argument("Matrix must be square to find inverse");
+    }
+    if(std::abs(determinant()) < 1e-12){
+        throw std::runtime_error("Matrix is singular or system has no unique solution");
+    }
+
+
+    int n = rows;
+    double maxAlpha;
+
+    std::vector<double> x(n, 0);
+    std::vector<double> oldX(n, 0);
+    std::vector<double> E(n, 0);
+    std::vector<double> alphaNorm(n, 0);
+
+    for (int i = 0; i < n; i++){
+        double sum = 0;
+        for (int j = 0; j < n; j++){
+            if (i != j) {
+                sum += fabs(data[i][j] / data[i][i]);
+            }
+        }
+        alphaNorm[i] = sum;
+    }
+
+    maxAlpha = std::abs(*max_element(alphaNorm.begin(), alphaNorm.end()));
+
+    if (maxAlpha > 1){
+        std::cout << "maxAlpha: " << maxAlpha << std::endl;
+        throw std::invalid_argument("Max alpha can't be > 1");
+    }
+
+    double eps_star = (maxAlpha / (1 - maxAlpha)) * EPS;
+
+    for(int iter = 0; iter < maxIterations; iter++){
+        oldX = x;
+        for (int i = 0; i < n; i++){
+            double sum = 0;
+            for (int j = 0; j < n; j++){
+                if (i != j) {
+                    sum += data[i][j] * x[j];
+                }
+            }
+            x[i] = (b[i] - sum) / data[i][i];
+        }
+
+        double maxE = 0;
+        for (int i = 0; i < n; i++){
+            E[i] = fabs(x[i] - oldX[i]);
+            maxE = std::max(maxE, E[i]);
+        }
+
+        if (maxE < eps_star && maxE < EPS){
+            break;
+        }
     }
     return x;
 }
