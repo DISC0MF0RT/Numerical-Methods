@@ -5,11 +5,12 @@
 #include <vector>
 #include <cmath>
 #include <stdexcept>
-
+#include <algorithm>
 class Matrix {
 private:
     int rows, cols;
     std::vector<std::vector<double>> data;
+
     double determinantRecursive(const std::vector<std::vector<double>>& mat) const;
 public:
     Matrix(int r, int c);
@@ -33,6 +34,13 @@ public:
     std::vector<double> progon(std::vector<double> b);
 
     bool check(std::vector<double> x, std::vector<double> b);
+    bool check(std::vector<double> x, std::vector<double> b, double EPS);
+
+    std::vector<double> methodSimpleIteration(const std::vector<double> &b, double EPS, int maxIteration);
+
+    std::vector<double> methodZeidelua(const std::vector<double> &b, double EPS, int maxIteration);
+
+
 };
 
 #endif
